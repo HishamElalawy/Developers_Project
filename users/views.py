@@ -37,3 +37,9 @@ def loginUser(request):
             messages.error(request, 'Username OR password is incorrect')
     
     return render(request , 'users/login-register.html')
+
+
+
+def logoutUser(request):
+    logout(request)
+    return redirect('login')
