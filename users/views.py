@@ -3,7 +3,8 @@ from .models import Profile
 from projects.models import Project
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm , EditAccountForm
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 def profiles(request):
@@ -18,6 +19,30 @@ def userProfile(request , pk):
     projects = profile.project_set.all()
     context = {'profile' : profile , 'topSkills' : topSkills ,'otherSkills' : otherSkills ,'projects':projects }
     return render (request , 'users/user-profile.html' , context)
+@login_required(login_url='login')
+def userAccount(request):
+    profile = request.user.profile
+    skills = profile.skill_set.all()
+    projects = profile.project_set.all()
+    context = {'profile':profile , 'skills':skills , 'projects':projects}
+    return render(request , 'users/account.html' , context)
+
+@login_required(login_url='login')
+def editUserAccount(request):
+    profile = request.user.profile
+    form = EditAccountForm(instance=profile)
+    if request.method =='POST':
+        form = EditAccountForm(request.POST , request.FILES ,instance=profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.username = profile.username.lower()
+            profile.save()
+            messages.success(request , 'your Account Has been updated')
+            return redirect('account')
+        else:
+            messages.error(request , 'Faild To Update The User')
+    context = {'profile':profile , 'form':form}
+    return render(request , 'users/edit-account.html' , context)
 
 def loginUser(request):
     page = 'login'
