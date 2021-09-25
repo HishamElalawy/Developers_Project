@@ -3,6 +3,7 @@ from .models import Profile
 from projects.models import Project
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
+from .forms import CustomUserCreationForm
 from django.contrib import messages
 
 def profiles(request):
@@ -32,7 +33,7 @@ def loginUser(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('profiles')
+            return redirect('profile')
         else:
             messages.error(request, 'Username OR password is incorrect')
     
@@ -43,3 +44,27 @@ def loginUser(request):
 def logoutUser(request):
     logout(request)
     return redirect('login')
+
+
+def registerUser(request):
+    page = 'register'
+    form = CustomUserCreationForm()
+
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+
+            messages.success(request, 'User account was created!')
+
+            login(request, user)
+            return redirect('profiles')
+
+        else:
+            messages.success(
+                request, 'An error has occurred during registration')
+
+    context = {'page': page, 'form': form}
+    return render(request, 'users/login-register.html', context)
