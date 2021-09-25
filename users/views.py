@@ -63,7 +63,7 @@ def registerUser(request):
             return redirect('profiles')
 
         else:
-            messages.success(
+            messages.error(
                 request, 'An error has occurred during registration')
 
     context = {'page': page, 'form': form}
