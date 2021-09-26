@@ -1,21 +1,34 @@
 from django.shortcuts import render , redirect
 from .models import Project
-from .forms import ProjectForm
+from .forms import ProjectForm , ReviewForm
 from django.contrib.auth.decorators import login_required
-from .utils import searchProjects
+from .utils import searchProjects , paginateProjects
+from django.contrib import messages
+
 
 def projects(request):
     projects, search_query = searchProjects(request)
-    
+    paginate_results = 3
+    custom_range , projects = paginateProjects (request , projects , paginate_results)
 
     context = {'projects': projects,
-               'search_query': search_query}
+               'search_query': search_query , 'custom_range':custom_range }
     return render(request, 'projects/projects.html', context)
 
 
 def project(request , pk) :
     project = Project.objects.get(id=pk)
-    context = {'project' : project}
+    form = ReviewForm()
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.owner = request.user.profile
+            review.project = project
+            review.save()
+            messages.success(request , 'Added Successfully')
+            return redirect('project' , pk=project.id)
+    context = {'project' : project, 'form':form}
     return render(request , 'projects/single-project.html' , context)
 
 @login_required(login_url='login')
