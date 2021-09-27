@@ -73,10 +73,7 @@ class Review(models.Model):
     def __str__(self):
         return self.value
 
-    @property
-    def reviewers(self):
-        queryset = self.review_set.all().values_list('owner__id', flat=True)
-        return queryset
+   
 
 class Tag(models.Model):
     name = models.CharField(max_length=200)
