@@ -1,5 +1,5 @@
 from django.shortcuts import render , redirect
-from .models import Project
+from .models import Project , Tag
 from .forms import ProjectForm , ReviewForm
 from django.contrib.auth.decorators import login_required
 from .utils import searchProjects , paginateProjects
@@ -37,11 +37,16 @@ def createProject(request):
     profile = request.user.profile
     form = ProjectForm()
     if request.method =='POST' :
+        newTags = request.POST.get('newtags').replace(',',' ').split()
         form = ProjectForm(request.POST , request.FILES)
         if form.is_valid():
+            
             project = form.save(commit=False)
             project.owner = profile
             project.save()
+            for tag in newTags:
+                tag , created = Tag.objects.get_or_create(name=tag)
+                project.tags.add(tag)
             return redirect('projects')
     context = {'form' : form}
     return render (request , 'projects/project-form.html' , context)
@@ -53,10 +58,14 @@ def updateProject(request , pk):
     form = ProjectForm(instance=project)
     if request.method == 'POST' :
         form = ProjectForm(request.POST , instance=project)
+        newTags = request.POST.get('newtags').replace(',',' ').split()
         if form.is_valid():
-            form.save()
+            project = form.save()
+            for tag in newTags:
+                tag, created = Tag.objects.get_or_create(name=tag)
+                project.tags.add(tag)
             return redirect('projects')
-    context = {'form' : form}
+    context = {'form' : form , 'project':project}
     return render(request , 'projects/project-form.html' , context)
 @login_required(login_url='login')
 def deleteProject(request , pk) :
