@@ -8,7 +8,7 @@ from django.contrib import messages
 
 def projects(request):
     projects, search_query = searchProjects(request)
-    paginate_results = 3
+    paginate_results = 6
     custom_range , projects = paginateProjects (request , projects , paginate_results)
 
     context = {'projects': projects,
@@ -57,7 +57,7 @@ def updateProject(request , pk):
     project = profile.project_set.get(id=pk)
     form = ProjectForm(instance=project)
     if request.method == 'POST' :
-        form = ProjectForm(request.POST , instance=project)
+        form = ProjectForm(request.POST , request.FILES, instance=project)
         newTags = request.POST.get('newtags').replace(',',' ').split()
         if form.is_valid():
             project = form.save()
