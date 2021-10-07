@@ -34,7 +34,8 @@ Online Developers Community To Allow Developers Share Their works And The other 
 
 **Backend:** Django , Postgres , Django Rest-Framework
 
-
+## DataBase Design
+![devcommunity_db](https://user-images.githubusercontent.com/61860186/136412738-f01c9622-8915-4e1d-8e5f-c667fa6ae340.png)
 
   
 ## Home Page
